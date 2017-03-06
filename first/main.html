@@ -1,0 +1,237 @@
+﻿<html>
+	<head>
+		<title>宅狗大戰 Nerd VS Doge</title>
+		<style>
+			.board{
+				position:fixed;
+				top:100px;
+				left:100px;
+			}
+			#com{
+				position:fixed;
+				top :10px;
+				left:820px;
+				font-family:Microsoft JhengHei;
+			}
+			#you{
+				position:fixed;
+				top :10px;
+				left:20px;
+				font-family:Microsoft JhengHei;
+			}
+			#message{
+			    position:fixed;
+				top:10px;
+				left:100Px;
+				font-size:35px;
+				width:700px;
+				height:90px;
+				line-height:40px;
+				text-align:center;
+				font-family:Microsoft JhengHei;
+			}
+			#winningMessage{
+				background: rgba(105,153,201,0.9);
+			    position:fixed;
+				top:200px;
+				left:205Px;
+				font-size:35px;
+				width:500px;
+				height:300px;
+				line-height:40px;
+				text-align:center;
+				font-family:Microsoft JhengHei;
+                text-shadow: 0px 0px 5px #fff,0px 0px 5px #fff;				
+				box-shadow:4px 4px 12px 4px rgba(0%,0%,0%,0.7);
+				display:none;
+			}
+			#close{
+			 cursor: pointer;
+			 position:relative;
+			 background:#1973ab;
+			 left:480Px;
+			 width:20px;
+			 height:20px;
+			 line-height:15px;
+			 text-align:center;
+			 font-size:20px;
+			}
+		</style>
+		<script type="text/javascript" src='board.js'></script>
+		<script type="text/javascript" src='AIControl.js'></script>
+	</head>
+	<body>
+	<div id='you' style="font-size:24px;">
+	
+	   你<br><img src='yellow.jpg'></img>
+	
+	</div>
+	<div id='com' style="font-size:24px;">
+	
+	   Doge<br><img src='red.jpg'></img>
+	
+	</div>
+        <canvas class='board' id='layer1' width='710' height='630'></canvas>	
+		<canvas class='board' id='layer2' width='710' height='630'></canvas>
+		<div id='winningMessage'><div id='close' onclick='closeWinningMessage()'>×</div><div id='text'></div></div>
+		<div id='message'></div>
+		<div style='position:relative; top:750px; left:750px; font-family:Microsoft JhengHei; font-size:30px;'>
+		<a href='main.html'>新局</a>
+		</div>
+		<script type="text/javascript">
+			var counter=0;
+		    var game=new connectFour();
+		    var player=true;
+			var message=document.getElementById('message');
+			var winningMessage=document.getElementById('winningMessage');
+			var text=document.getElementById('text');
+			var winPicture='<img src="win.jpg"></img><br>';
+			var losePicture='<img src="lose.jpg"></img><br>';
+			var drawPicture='<img src="draw.jpg"></img><br>';
+		    console.log("Hello world");
+			
+			var layer2= document.getElementById("layer2");
+			layer2TwoD =layer2.getContext('2d');
+			layer2TwoD.beginPath();
+			for(i=55;i<=710;i+=75)
+			{
+			 for(j=35;j<=650;j+=70)
+			{
+				layer2TwoD.moveTo(i,j);
+				layer2TwoD.arc(i,j,27,0,Math.PI*2,true);
+				
+            }
+			} 		
+			layer2TwoD.rect(0,0,710,630);
+			layer2TwoD.fillStyle = '#1973ab';
+			layer2TwoD.fill();
+		
+			
+			layer2.addEventListener("click",detect=function(e){
+			   e.stopImmediatePropagation();
+				var mouseX = e.pageX-100 ;	
+				var mouseY = e.pageY-100;
+			    var x,y;
+			   //console.log(mouseX+' '+mouseY);
+			   for(i=0;i<9;i++){
+			       if(mouseX>i*75+18&&mouseX<=(i+1)*75+18){
+				     x=i;
+				   }
+			   }
+			    for(i=0;i<9;i++){
+			       if(mouseY>i*70&&mouseY<=(i+1)*70){
+				     y=i;
+				   }
+			   }
+			 console.log(x+' '+y);
+			   move(x,y);
+			
+			});
+			
+	
+			var layer1=document.getElementById("layer1");
+		  
+			
+			function move(x,y){
+              
+			  if(typeof x==='undefined'||typeof y==='undefined')
+			  {
+			    console.log("Error");
+			    return;
+			  }
+			   // console.log(board);
+			 
+			  
+		      if(player==false){
+			    message.innerHTML='please wait';			
+			  }
+			  player=false;
+			  var playerXY=game.playerMove(x,y);
+			  if(playerXY.length==0){
+			    message.innerHTML='請下在正確的位置';
+			    player=true;
+				return;
+			  }
+			   layer2.removeEventListener("click",detect);
+			  counter++;
+			  displayBoard(game.getBoard(),layer1,playerXY);
+			 
+			  if(game.isTerminal()==true){
+			   winningMessage.style.display="block";
+			    switch(game.getScore())
+				{
+				case 0:
+					message.innerHTML='平手<br>第'+(counter+1)+'回';
+					text.innerHTML=drawPicture+'讓你的';
+				break;
+				case 4:
+					message.innerHTML='你贏了 <br>第'+(counter+1)+'回';
+					text.innerHTML=losePicture+'啊不就好棒棒??';
+				break;
+				case -4:
+					message.innerHTML='你輸了<br>第'+(counter+1)+'回'; 
+					text.innerHTML=winPicture+'你屎惹 顆顆';
+				break;
+				}
+			   layer2.removeEventListener("click",detect);
+				return;
+			  }
+			  
+				message.innerHTML='思考中...<br>第'+(counter+1)+'回';
+			  
+			    setTimeout(aiMove,500);
+			}
+			function aiMove(){
+			  var comXY;
+			  comXY=game.aiMove(counter);
+			  counter++;
+			  displayBoard(game.getBoard(),layer1,comXY);
+			  if(game.isTerminal()==true){
+			   winningMessage.style.display="block";
+			    switch(game.getScore())
+				{
+				case 0:
+					message.innerHTML='平手<br>第'+(counter+1)+'回';
+					text.innerHTML=drawPicture+'讓你的';
+				break;
+				case 4:
+					message.innerHTML='你贏了 <br>第'+(counter+1)+'回';
+					text.innerHTML=losePicture+'啊不就好棒棒??';
+				break;
+				case -4:
+					message.innerHTML='你輸了<br>第'+(counter+1)+'回'; 
+					text.innerHTML=winPicture+'你屎惹 顆顆';
+				break;
+				}
+			   layer2.removeEventListener("click",detect);
+				return;
+			  }
+			   message.innerHTML='你的回合<br>第'+(counter+1)+'回';
+			  player=true;
+			  
+	           setTimeout(layer2.addEventListener("click",detect=function(e){
+			   e.stopImmediatePropagation();
+				var mouseX = e.pageX-100 ;	
+				var mouseY = e.pageY-100;
+			    var x,y;
+			   for(i=0;i<9;i++){
+			       if(mouseX>i*75+18&&mouseX<=(i+1)*75+18){
+				     x=i;
+				   }
+			   }
+			    for(i=0;i<9;i++){
+			       if(mouseY>i*70&&mouseY<=(i+1)*70){
+				     y=i;
+				   }
+			   }
+			 console.log(x+' '+y);
+			   move(x,y);
+			
+			}),5000);
+			}
+			function closeWinningMessage(){
+			  winningMessage.style.display='none';
+			}
+		</script>		  
+	</body>
+</html>

@@ -1,0 +1,42 @@
+﻿<html>
+<head>
+<title>宅狗大戰 Nerd VS Doge</title>
+<style>
+#first{
+cursor: pointer;
+ position:fixed;
+ top:492px;
+ font-size:35px;
+ color: white;
+ left:350px;
+ text-shadow: 0px 0px 10px #000,0px 0px 10px #000;	
+}
+
+#second{
+ font-color: #fff;
+ cursor: pointer;
+ position:fixed;
+ top:550px;
+ color: white;
+ font-size:35px;
+ left:350px;
+ text-shadow: 0px 0px 10px #000,0px 0px 10px #000;	
+}
+
+
+</style>
+</head>
+<body>
+<div id='mainBox'><img src='cover.jpg'></img></div>
+<div id='first' onclick='window.location ="first/main.html"'>&nbsp;&nbsp;FIRST</div>
+<div id='second' onclick='window.location ="second/main.html"'>&nbsp;&nbsp;SECOND</div>
+</body>
+<script>
+var first=document.getElementById("first");
+var second=document.getElementById("second");
+first.addEventListener("mouseover",function(){ first.innerHTML="→ FIRST";});
+first.addEventListener("mouseout",function(){ first.innerHTML='&nbsp;&nbsp;FIRST';});
+second.addEventListener("mouseover",function(){ second.innerHTML="→ SECOND";});
+second.addEventListener("mouseout",function(){ second.innerHTML='&nbsp;&nbsp;SECOND';});
+</script>
+</html>
